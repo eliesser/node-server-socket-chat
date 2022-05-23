@@ -28,11 +28,17 @@ export default class Server {
   private watchSockets() {
     console.log('Escuchando conexiones - sockets');
 
-    this.io.on('connection', (cliente) => {
-      console.log('Cliente conectado');
+    this.io.on('connection', (client) => {
+      // conect client
+      socket.connectClient(client);
 
-      socket.disconnect(cliente);
-      socket.message(cliente, this.io);
+      socket.configUser(client, this.io);
+
+      console.log(client.id);
+
+      socket.disconnect(client);
+
+      socket.message(client, this.io);
     });
   }
 
