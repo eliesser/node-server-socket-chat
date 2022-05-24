@@ -1,39 +1,38 @@
 import { Socket } from 'socket.io';
-import { Server as socketIO } from 'socket.io';
+import socketIO from 'socket.io';
 import { User } from '../classes/user';
 
 import { UserList } from '../classes/user-list';
 
 export const userConneted = new UserList();
 
-export const connectClient = (client: Socket) => {
+export const connectClient = (client: Socket, io: socketIO.Server) => {
   const user = new User(client.id);
 
   userConneted.add(user);
 };
 
-export const disconnect = (client: Socket) => {
+export const disconnect = (client: Socket, io: socketIO.Server) => {
   client.on('disconnect', () => {
     userConneted.deleteUser(client.id);
-    console.log('Cliente desconectado');
+
+    io.emit('active-users', userConneted.getAllUser());
   });
 };
 
-export const message = (client: Socket, io: socketIO) => {
+export const message = (client: Socket, io: socketIO.Server) => {
   client.on('message', (payload: { from: string; body: string }) => {
-    console.log('Mensaje recibido', payload);
-
     io.emit('new-message', payload);
   });
 };
 
-export const configUser = (client: Socket, io: socketIO) => {
+export const configUser = (client: Socket, io: socketIO.Server) => {
   client.on(
     'config-user',
     (payload: { name: string }, callback: (resp: any) => void) => {
-      console.log('config user', payload);
-
       userConneted.updateName(client.id, payload.name);
+
+      io.emit('active-users', userConneted.getAllUser());
 
       callback({
         ok: true,
@@ -41,4 +40,10 @@ export const configUser = (client: Socket, io: socketIO) => {
       });
     }
   );
+};
+
+export const getUsers = (client: Socket, io: socketIO.Server) => {
+  client.on('get-users', () => {
+    io.in(client.id).emit('active-users', userConneted.getAllUser());
+  });
 };

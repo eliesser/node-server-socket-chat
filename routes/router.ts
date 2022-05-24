@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import Server from '../classes/server';
+import { userConneted } from '../sockets/sockets';
 
 const router = Router();
 
@@ -39,6 +40,32 @@ router.post('/mensajes/:id', (req: Request, res: Response) => {
     from,
     id,
     ok: true,
+  });
+});
+
+router.get('/users', async (req: Request, res: Response) => {
+  const server = Server.instance;
+
+  const clients: string[] = [];
+
+  for (let socket in server.io.engine.clients) {
+    clients.push(server.io.engine.clients[socket].id);
+  }
+
+  res.json({
+    ok: true,
+    clients,
+  });
+});
+
+router.get('/users/detail', async (req: Request, res: Response) => {
+  const server = Server.instance;
+
+  console.log(userConneted.getAllUser());
+
+  res.json({
+    ok: true,
+    clients: userConneted.getAllUser(),
   });
 });
 

@@ -8,7 +8,6 @@ export class UserList {
   // add user
   public add(user: User) {
     this.listUser.push(user);
-    console.log(this.listUser);
     return user;
   }
 
@@ -20,14 +19,11 @@ export class UserList {
         break;
       }
     }
-
-    console.log('Updating user');
-    console.log(this.listUser);
   }
 
   // get all user
   public getAllUser() {
-    return this.listUser;
+    return this.listUser.filter((user) => user.name !== 'no-name');
   }
 
   // get user by id
